@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - User Management</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 90%;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #aaa;
+            text-align: left;
+        }
+        th {
+            background: #f2f2f2;
+        }
+        input, select, button {
+            padding: 5px 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Admin – User Management</h1>
+
+    <!-- Search bar -->
+    <form method="get">
+        <input type="text" name="q" placeholder="Search user name/email" value="{{ q }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <br>
+
+    <table>
+        <tr>
+            <th> ID </th>
+            <th> Name </th>
+            <th> Email </th>
+            <th> Role </th>
+            <th> Status </th>
+            <th> Action </th>
+        </tr>
+
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>{{ user.status }}</td>
+
+            <td>
+                <form method="post" action="{{ url_for('admin_users.change_status', user_id=user.id) }}">
+                    <select name="status">
+                        <option value="active" {% if user.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Suspended</option>
+                        <option value="deleted" {% if user.status == 'deleted' %}selected{% endif %}>Deleted</option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>
