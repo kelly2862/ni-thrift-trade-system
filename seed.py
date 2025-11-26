@@ -2,12 +2,15 @@ from app import create_app
 from extensions import db
 from models import User
 
+# Create the Flask app instance
 app = create_app()
 
+# Use app's context for database operations
 with app.app_context():
-    db.drop_all()
-    db.create_all()
+    db.drop_all()  # Clear all tables
+    db.create_all()  # Create all tables (like 'users')
 
+    # Admin user
     admin = User(
         name="Admin",
         email="admin@gmail.com",
@@ -16,6 +19,7 @@ with app.app_context():
     )
     admin.set_password("admin123")
 
+    # Regular user
     user1 = User(
         name="Kelly",
         email="kelly@gmail.com",
@@ -24,8 +28,10 @@ with app.app_context():
     )
     user1.set_password("user123")
 
+    # Add users to the database
     db.session.add(admin)
     db.session.add(user1)
-    db.session.commit()
+    db.session.commit()  # Commit changes
 
     print("Database created, admin user added.")
+
