@@ -7,10 +7,10 @@ app = create_app()
 
 # Use the app's context for database operations
 with app.app_context():
-    db.drop_all()  # Clears all tables
-    db.create_all()  # Creates tables
+    db.drop_all()  # Clear all tables
+    db.create_all()  # Create all tables (like 'users')
 
-    # Create admin user
+    # Admin user
     admin = User(
         name="Admin",
         email="admin@gmail.com",
@@ -19,7 +19,7 @@ with app.app_context():
     )
     admin.set_password("admin123")
 
-    # Create regular user
+    # Regular user
     user1 = User(
         name="Kelly",
         email="kelly@gmail.com",
@@ -31,6 +31,6 @@ with app.app_context():
     # Add users to the session and commit
     db.session.add(admin)
     db.session.add(user1)
-    db.session.commit()
+    db.session.commit()  # Commit changes
 
     print("Database created, admin user added.")
