@@ -1,48 +1,38 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, redirect, url_for
 from extensions import db
 from models import User
 
-bp = Blueprint("admin_users", __name__, url_prefix="/admin/users")
+admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
-# Admin-only decorator
-def admin_required(func):
-    def wrapper(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != "admin":
-            return "Forbidden: Admins only", 403
-        return func(*args, **kwargs)
-    return wrapper
+# Show all users
+@admin_bp.route("/users")
+def manage_users():
+    users = User.query.all()
+    return render_template("admin_users.html", users=users)
 
+# Suspend user
+@admin_bp.route("/suspend/<int:user_id>")
+def suspend_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        user.status = "suspended"
+        db.session.commit()
+    return redirect(url_for("admin.manage_users"))
 
-@bp.route("/")
-@login_required
-@admin_required
-def list_users():
-    q = request.args.get("q", "")
-    
-    if q:
-        users = User.query.filter(
-            (User.name.ilike(f"%{q}%")) | (User.email.ilike(f"%{q}%"))
-        ).all()
-    else:
-        users = User.query.all()
+# Activate user
+@admin_bp.route("/activate/<int:user_id>")
+def activate_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        user.status = "active"
+        db.session.commit()
+    return redirect(url_for("admin.manage_users"))
 
-    return render_template("admin_users.html", users=users, q=q)
-
-
-@bp.post("/<int:user_id>/status")
-@login_required
-@admin_required
-def change_status(user_id):
-    user = User.query.get_or_404(user_id)
-    new_status = request.form["status"]
-
-    if new_status not in ["active", "suspended", "deleted"]:
-        flash("Invalid status!", "danger")
-        return redirect(url_for("admin_users.list_users"))
-    
-    user.status = new_status
-    db.session.commit()
-
-    flash(f"User {user.email} status updated to: {new_status}", "success")
-    return redirect(url_for("admin_users.list_users"))
+# Delete user
+@admin_bp.route("/delete/<int:user_id>")
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+    return redirect(url_for("admin.manage_users"))
