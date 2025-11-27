@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Admin - User Management</title>
     <style>
         table {
+            width: 80%;
             border-collapse: collapse;
-            width: 90%;
+            margin: 20px auto;
         }
-        th, td {
+        table, th, td {
+            border: 1px solid #444;
             padding: 10px;
-            border: 1px solid #aaa;
-            text-align: left;
         }
         th {
-            background: #f2f2f2;
+            background: #ddd;
         }
-        input, select, button {
-            padding: 5px 8px;
+        a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: blue;
+        }
+        h2 {
+            text-align: center;
         }
     </style>
 </head>
-
 <body>
-    <h1>Admin – User Management</h1>
 
-    <!-- Search bar -->
-    <form method="get">
-        <input type="text" name="q" placeholder="Search user name/email" value="{{ q }}">
-        <button type="submit">Search</button>
-    </form>
-
-    <br>
+    <h2>User Management</h2>
 
     <table>
         <tr>
-            <th> ID </th>
-            <th> Name </th>
-            <th> Email </th>
-            <th> Role </th>
-            <th> Status </th>
-            <th> Action </th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
 
         {% for user in users %}
@@ -51,14 +49,13 @@
             <td>{{ user.status }}</td>
 
             <td>
-                <form method="post" action="{{ url_for('admin_users.change_status', user_id=user.id) }}">
-                    <select name="status">
-                        <option value="active" {% if user.status == 'active' %}selected{% endif %}>Active</option>
-                        <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Suspended</option>
-                        <option value="deleted" {% if user.status == 'deleted' %}selected{% endif %}>Deleted</option>
-                    </select>
-                    <button type="submit">Update</button>
-                </form>
+                {% if user.status == 'active' %}
+                    <a href="{{ url_for('admin.suspend_user', user_id=user.id) }}">Suspend</a>
+                {% else %}
+                    <a href="{{ url_for('admin.activate_user', user_id=user.id) }}">Activate</a>
+                {% endif %}
+
+                <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" style="color: red;">Delete</a>
             </td>
         </tr>
         {% endfor %}
@@ -66,3 +63,4 @@
 
 </body>
 </html>
+
