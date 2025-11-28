@@ -1,36 +1,49 @@
-from app import create_app
+from app import app
 from extensions import db
-from models import User
+from models import User, Listing, Message
 
-# Initialize the app
-app = create_app()
 
-# Use the app's context for database operations
 with app.app_context():
-    db.drop_all()  # Clear all tables
-    db.create_all()  # Create all tables (like 'users')
+    db.drop_all()
+    db.create_all()
 
-    # Admin user
-    admin = User(
-        name="Admin",
-        email="admin@gmail.com",
-        role="admin",
-        status="active"
-    )
+    # Users
+    admin = User(name="Admin", email="admin@gmail.com", role="admin", status="active")
     admin.set_password("admin123")
 
-    # Regular user
-    user1 = User(
-        name="Kelly",
-        email="kelly@gmail.com",
-        role="user",
-        status="active"
-    )
+    user1 = User(name="Kelly", email="kelly@gmail.com", role="user", status="active")
     user1.set_password("user123")
 
-    # Add users to the session and commit
-    db.session.add(admin)
-    db.session.add(user1)
-    db.session.commit()  # Commit changes
+    db.session.add_all([admin, user1])
+    db.session.commit()
 
-    print("Database created, admin user added.")
+    # Listings
+    listing1 = Listing(
+        title="Used Programming Textbook",
+        description="Good condition, suitable for CS students.",
+        price=30.0,
+        user_id=admin.id,
+    )
+    listing2 = Listing(
+        title="Uni Hoodie (Size M)",
+        description="Slightly worn, still nice.",
+        price=20.0,
+        user_id=user1.id,
+    )
+
+    # Messages
+    msg1 = Message(
+        content="Hi, is the hoodie still available?",
+        sender_id=admin.id,
+        receiver_id=user1.id,
+    )
+    msg2 = Message(
+        content="Yes, it's still available!",
+        sender_id=user1.id,
+        receiver_id=admin.id,
+    )
+
+    db.session.add_all([listing1, listing2, msg1, msg2])
+    db.session.commit()
+
+    print("Database created with sample users, listings and messages.")
