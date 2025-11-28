@@ -1,27 +1,58 @@
-from flask import Flask
+from flask import Flask, redirect, url_for, render_template
+from flask_login import login_required, current_user
 from config import Config
 from extensions import db, migrate, login_manager
-
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-
-    # Initialize extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
-    login_manager.init_app(app)
-
-    # Register blueprints INSIDE the create_app function
-    from blueprints.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-
-    from blueprints.admin_users import admin_bp
-    app.register_blueprint(admin_bp, url_prefix="/admin")
-
-    return app
+from models import User, Listing, Message
+from blueprints.auth import auth_bp
+from blueprints.admin_users import admin_users_bp
+from blueprints.admin_listings import admin_listings_bp
+from blueprints.reports import reports_bp
 
 
-# Only used when running `python app.py`
+app = Flask(__name__)
+app.config.from_object(Config)
+
+db.init_app(app)
+migrate.init_app(app, db)
+login_manager.init_app(app)
+
+login_manager.login_view = "auth.login"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(admin_users_bp)
+app.register_blueprint(admin_listings_bp)
+app.register_blueprint(reports_bp)
+
+
+# -------- BASIC USER ROUTES --------
+
+@app.route("/")
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for("view_listings"))
+    return redirect(url_for("auth.login"))
+
+
+@app.route("/listings")
+@login_required
+def view_listings():
+    listings = Listing.query.all()
+    return render_template("listing_list.html", listings=listings)
+
+
+@app.route("/messages")
+@login_required
+def view_messages():
+    messages = Message.query.all()
+    return render_template("messages.html", messages=messages)
+
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True)
