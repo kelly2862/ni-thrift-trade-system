@@ -1,66 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Admin - User Management</title>
-    <style>
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin: 20px auto;
-        }
-        table, th, td {
-            border: 1px solid #444;
-            padding: 10px;
-        }
-        th {
-            background: #ddd;
-        }
-        a {
-            margin: 0 5px;
-            text-decoration: none;
-            color: blue;
-        }
-        h2 {
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Admin - Users{% endblock %}
+{% block content %}
+<h2>User Management</h2>
 
-    <h2>User Management</h2>
-
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-
-        {% for user in users %}
-        <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
-            <td>{{ user.status }}</td>
-
-            <td>
-                {% if user.status == 'active' %}
-                    <a href="{{ url_for('admin.suspend_user', user_id=user.id) }}">Suspend</a>
-                {% else %}
-                    <a href="{{ url_for('admin.activate_user', user_id=user.id) }}">Activate</a>
-                {% endif %}
-
-                <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" style="color: red;">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
-</body>
-</html>
-
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.status }}</td>
+        <td>
+            {% if u.status == "active" %}
+                <a href="{{ url_for('admin_users.suspend_user', user_id=u.id) }}">Suspend</a>
+            {% else %}
+                <a href="{{ url_for('admin_users.activate_user', user_id=u.id) }}">Activate</a>
+            {% endif %}
+            <a href="{{ url_for('admin_users.delete_user', user_id=u.id) }}" style="color:red">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
